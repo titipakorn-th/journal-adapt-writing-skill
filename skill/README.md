@@ -19,8 +19,8 @@ The generated rules are reviewable before any manuscript revision starts.
 For Claude Code:
 
 ```bash
-mkdir -p ~/.claude/skills/journal-adapt
-cp -R skill/* ~/.claude/skills/journal-adapt/
+mkdir -p ~/.claude/skills
+ln -s "$PWD/skill" ~/.claude/skills/journal-adapt   # run from the repository root; git pull updates it
 ```
 
 For Codex:
@@ -28,23 +28,15 @@ For Codex:
 - If your Codex setup supports custom skills, install this folder as `journal-adapt`.
 - If not, keep this repository open and ask Codex to follow `skill/SKILL.md` directly.
 
-See `docs/INSTALLATION.md` for PDF conversion and MinerU troubleshooting. See `docs/STATIC_SKILL_RECOMMENDATIONS.md` for optional static base skill recommendations.
+See the repository's `docs/INSTALLATION.md` for PDF conversion and `docs/STATIC_SKILL_RECOMMENDATIONS.md` for static base skill recommendations.
 
 ---
 
 ## Inputs
 
-The skill will ask for:
+Quickest start: `/journal-adapt manuscript.tex corpus/ JEEM`. The skill asks only for what it cannot infer: manuscript, target journal, corpus folder, and optionally field papers, lab samples, your own writing guide, and which sections to revise.
 
-1. target journal or writing destination,
-2. primary corpus folder,
-3. optional secondary corpus folder,
-4. optional user/lab exemplar files,
-5. optional base writing skill,
-6. manuscript file,
-7. sections to revise.
-
-Markdown inputs work without MinerU. PDF inputs require a PDF-to-Markdown converter.
+Markdown, LaTeX, and plain-text inputs work without any converter. PDF inputs need a PDF-to-text converter. An existing `dynamic_writing_skill.md` can be loaded directly to skip corpus analysis.
 
 ---
 
@@ -56,7 +48,11 @@ base_rules/
 ├── ml_cv_nlp.md
 ├── cs_engineering.md
 └── general_academic.md
+scripts/
+└── check_preserved.py   # flags citations, refs, math, footnotes, numbers lost or added in a revision
 ```
+
+Run `python3 scripts/check_preserved.py --selftest` to verify the checker (Python 3 stdlib only).
 
 You may replace these with any static writing skill or skip the base layer entirely.
 
@@ -70,7 +66,8 @@ The skill writes Markdown outputs next to the manuscript:
 [manuscript_name]_revised/
 ├── dynamic_writing_skill.md
 ├── style_profile.md
-├── [section]_revised.md
+├── [section]_original.[ext]
+├── [section]_revised.[ext]
 ├── [section]_revision_log.md
 └── revision_summary.md
 ```
