@@ -102,65 +102,53 @@ All corpus files should be fully readable Markdown/text before Phase 1. If a PDF
 
 ## Quick Start
 
-### 1. Install the skill
+### 1. Install
 
-For Claude Code:
+For Claude Code, link the skill so `git pull` keeps it up to date:
 
 ```bash
-mkdir -p ~/.claude/skills/journal-adapt
-cp -R skill/* ~/.claude/skills/journal-adapt/
+git clone https://github.com/titipakorn-th/journal-adapt-writing-skill.git
+mkdir -p ~/.claude/skills
+ln -s "$PWD/journal-adapt-writing-skill/skill" ~/.claude/skills/journal-adapt
 ```
 
-For Codex, copy or symlink the `skill/` folder into your Codex skills directory if your local setup supports custom skills. You can also keep the repository open and ask Codex to use `skill/SKILL.md` directly.
+For Codex or other agents, keep this repository open and ask the agent to follow `skill/SKILL.md`. More detail: [Installation and PDF Conversion](docs/INSTALLATION.md).
 
-More detail: [Installation and PDF Conversion](docs/INSTALLATION.md).
-
-### 2. Prepare inputs
-
-Minimum Markdown workflow, no MinerU required:
+### 2. Put your files in one place
 
 ```text
 my_project/
-├── corpus/
-│   ├── target_journal_001.md
-│   ├── target_journal_002.md
-│   └── field_top_paper_001.md
-└── manuscript.md
+├── corpus/            # 5-8 papers from the target journal (.pdf, .md, or .txt)
+└── manuscript.tex     # or .md / .docx / .pdf
 ```
 
-PDF workflow:
+Use your manuscript's source (`.tex`, `.md`, `.docx`) rather than its PDF when you have it. Corpus PDFs are fine. No corpus yet? Run the skill anyway; it tells you what to collect and can start with generic rules.
+
+### 3. Run it
 
 ```text
-my_project/
-├── corpus_pdfs/
-│   ├── paper_001.pdf
-│   └── paper_002.pdf
-└── manuscript.pdf
+/journal-adapt manuscript.tex corpus/ JEEM
 ```
 
-PDF input requires a PDF-to-Markdown converter. MinerU is supported, but Markdown input is the recommended path if MinerU is hard to install.
-
-### 3. Invoke
+Or in plain words:
 
 ```text
-/journal-adapt
+Revise the introduction of manuscript.tex for JEEM using the papers in corpus/.
 ```
 
-Or ask:
+The skill asks only for what it cannot find. It shows a short summary of the writing rules it built, waits for your "go", then revises one section at a time.
 
-```text
-Help me build a dynamic writing skill for my manuscript using these target-journal papers and this base writing skill.
-```
+Other things you can ask for:
 
-The skill will ask for:
+| You want | Say |
+|----------|-----|
+| Only the journal writing rules | "Build the writing skill for JEEM from corpus/, don't revise yet." |
+| A diagnosis without rewriting | "Diagnose my introduction against JEEM style." |
+| Reuse rules from an earlier run | "Use this dynamic_writing_skill.md to revise my abstract." |
+| Your lab's style on top | "Also use lab_samples/ as exemplars." |
+| Thesis or dissertation | "Revise chapter 2 of thesis.tex for a PhD in Economics at my university, using the theses in past_theses/." |
 
-1. Target journal or writing destination
-2. Primary corpus folder
-3. Optional secondary corpus folder
-4. Optional user/lab exemplar files
-5. Optional base writing skill
-6. Manuscript file
-7. Sections to revise
+**Theses.** Thesis mode turns on automatically for a thesis or dissertation. The corpus becomes 3-6 recently accepted theses from your program, the unit of revision becomes the chapter, and chapter openings, closings, research questions, and future work are handled as a thesis needs them. For a thesis by publication, the paper chapters are revised against their own target journals.
 
 ---
 
@@ -172,14 +160,14 @@ Saved next to the manuscript:
 [manuscript_name]_revised/
 ├── dynamic_writing_skill.md
 ├── style_profile.md
-├── abstract_revised.md
-├── introduction_revised.md
+├── abstract_revised.tex      # same format as your manuscript
+├── introduction_revised.tex
 ├── ...
 ├── [section]_revision_log.md
 └── revision_summary.md
 ```
 
-The revised files are Markdown. Move them into LaTeX, Word, or another writing environment after review.
+The revised files keep your manuscript's format (LaTeX stays LaTeX). Each section is checked by `skill/scripts/check_preserved.py`, which flags any citation, reference, math span, footnote, or number that was lost or added.
 
 ---
 

@@ -175,7 +175,7 @@ The user reviews the dynamic skill before manuscript revision begins.
 [manuscript_name]_revised/
 ├── dynamic_writing_skill.md
 ├── style_profile.md
-├── [section]_revised.md
+├── [section]_revised.[ext]
 ├── [section]_revision_log.md
 └── revision_summary.md
 ```

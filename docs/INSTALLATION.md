@@ -16,9 +16,11 @@ You only need a PDF converter when your corpus or manuscript is in PDF form. If 
 From the repository root:
 
 ```bash
-mkdir -p ~/.claude/skills/journal-adapt
-cp -R skill/* ~/.claude/skills/journal-adapt/
+mkdir -p ~/.claude/skills
+ln -s "$PWD/skill" ~/.claude/skills/journal-adapt
 ```
+
+The symlink means `git pull` updates the installed skill. If you installed an earlier version by copying, delete that folder first (`rm -r ~/.claude/skills/journal-adapt`), or `ln` puts the link inside it. If your system does not support symlinks, copy instead with `cp -R skill ~/.claude/skills/journal-adapt` and re-copy after each update.
 
 Then invoke:
 
@@ -65,18 +67,15 @@ This avoids PDF conversion problems and does not require MinerU.
 
 If your inputs are PDFs, convert them to Markdown before style extraction.
 
-MinerU is supported:
+MinerU is supported. Its CLI changed across major versions, so check `--help` for the version you install:
 
 ```bash
-pip install mineru
-mineru --version
+pip install "mineru>=4.0,<5"
+mineru-kit parse "path/to/paper.pdf" -o "converted/paper_001.md" --tier standard   # MinerU 4.x
+mineru -p "path/to/paper.pdf" -o "converted/paper_001/"                           # MinerU 2.x
 ```
 
-Then convert one file at a time:
-
-```bash
-python3 -m mineru.cli.pdf_to_md "path/to/paper.pdf" --output-dir "converted/paper_001/"
-```
+For corpus papers, plain `pdftotext -layout paper.pdf paper.txt` (poppler) is also enough: style extraction needs readable prose, not intact equations. The manuscript is different. Use its `.tex`, `.md`, or `.docx` source whenever you have it.
 
 Do not rely on large batch conversion for a whole corpus. Converting one PDF at a time makes failures easier to isolate and avoids incomplete batch output on some machines.
 
@@ -97,7 +96,7 @@ The workflow can continue as long as every corpus paper used in Phase 1 has full
 
 ## Quality Check After Conversion
 
-Before extraction, quickly inspect the converted text:
+Corpus papers only need readable section prose in the right order; garbled equations or tables are acceptable because only structure and rhetoric are extracted. The manuscript needs more. Before revision, inspect it:
 
 - section order is readable;
 - equations are preserved as LaTeX or clear text;
